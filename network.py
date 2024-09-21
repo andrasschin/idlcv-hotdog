@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from functools import reduce
 
 class CNN(nn.Module):
     def __init__(self, channels, kernels, strides, img_size):

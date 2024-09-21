@@ -2,16 +2,16 @@ import torch
 from tqdm import tqdm
 from dataloader import get_dataloader
 from network import CNN
-from torch import nn
 from torchinfo import summary
 import argparse
 from datetime import datetime
 import matplotlib.pyplot as plt
-
+import os
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f'Using {device} device')
-
+if not os.path.exists("outputs"):
+    os.mkdir("outputs")
 today = datetime.today().strftime('%m-%d-%H-%M')
 
 
@@ -40,7 +40,7 @@ def train(model, train_dataloader, test_dataloader, optim, loss_fn, num_epochs, 
             running_loss_train += loss.item()
             progress_bar.set_postfix({'Loss': f'{running_loss_train / len(train_dataloader):.4f}'})
 
-        print(f'[TRAIN] Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss_train / len(train_dataloader):.4f}')
+        # print(f'[TRAIN] Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss_train / len(train_dataloader):.4f}')
         print(f'[TRAIN] Epoch [{epoch + 1}/{num_epochs}], Accuracy: {running_accuracy_train / (len(train_dataloader) * batch_size):.4f}')
 
         accuracies_train.append((running_accuracy_train / (len(train_dataloader) * batch_size)).cpu().numpy())
@@ -58,7 +58,7 @@ def train(model, train_dataloader, test_dataloader, optim, loss_fn, num_epochs, 
                 running_accuracy_test += (pred.argmax(dim=1) == target).sum()
                 running_loss_test += loss.item()
 
-            print(f'[VAL] Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss_test / len(test_dataloader):.4f}')
+            # print(f'[VAL] Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss_test / len(test_dataloader):.4f}')
             print(f'[VAL] Epoch [{epoch + 1}/{num_epochs}], Accuracy: {running_accuracy_test / (len(test_dataloader) * batch_size):.4f}')
 
         model.train()
@@ -95,7 +95,7 @@ def eval(model, test_dataloader, loss_fn, batch_size=64):
             running_accuracy += (pred.argmax(dim=1) == target).sum()
             running_loss += loss.item()
 
-        print(f'[TEST] Loss: {running_loss / len(test_dataloader):.4f}')
+        # print(f'[TEST] Loss: {running_loss / len(test_dataloader):.4f}')
         print(f'[TEST] Accuracy: {running_accuracy / (len(test_dataloader) * batch_size):.4f}')
 
     with open(f'outputs/results_{today}.txt', 'a') as f:
@@ -126,18 +126,21 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--channels",
-        type=tuple,
-        default=(32, 64, 64, 64)
+        type=int,
+        nargs="+",
+        default=[32, 64, 64, 64]
     )
     parser.add_argument(
         "--kernels",
-        type=tuple,
-        default=(7, 6, 3, 3)
+        type=int,
+        nargs="+",
+        default=[7, 6, 3, 3]
     )
     parser.add_argument(
         "--strides",
-        type=tuple,
-        default=(2, 2, 2, 1)
+        type=int,
+        nargs="+",
+        default=[2, 2, 2, 1]
     )
     parser.add_argument(
         "--img-size",
@@ -165,7 +168,7 @@ if __name__ == "__main__":
     
 
     with open(f'outputs/results_{today}.txt', 'w') as f:
-        f.write(f'Model param count: {summary(model).total_params}\n')
+        f.write(f'{summary(model)}\n')
         f.write(f'Training parameters:\n')
         f.write(f'Batch Size: {args.batch_size}\n')
         f.write(f'Epochs: {args.epochs}\n')
@@ -174,6 +177,15 @@ if __name__ == "__main__":
         f.write(f'Kernels: {args.kernels}\n')
         f.write(f'Strides: {args.strides}\n')
         f.write(f'Image Size: {args.img_size}\n')
+        f.write(f'----------------------\n')
+
+        resolution = args.img_size
+        for i, (k, s) in enumerate(zip(args.kernels, args.strides)):
+            resolution = (resolution-k+1)/s
+            assert resolution.is_integer(), "Resolution is not a whole number."
+            resolution = int(resolution)
+            f.write(f"[{i}] Layer resolution: {resolution}x{resolution}\n")
+
         f.write(f'----------------------\n')
 
         
