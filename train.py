@@ -4,6 +4,7 @@ from dataloader import get_dataloader
 from network import CNN
 from torch import nn
 from torchinfo import summary
+import argparse
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -38,7 +39,53 @@ def train(model, dataloader, optim, loss_fn, num_epochs):
 if __name__ == "__main__":
     from rich import print
 
-    model = CNN().to(device)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=64,
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=20,
+    )
+    parser.add_argument(
+        "--lr",
+        type=float,
+        default=1e-2
+    )
+    parser.add_argument(
+        "--channels",
+        type=tuple,
+        default=(32, 64, 64)
+    )
+    parser.add_argument(
+        "--kernels",
+        type=tuple,
+        default=(7, 5, 3)
+    )
+    parser.add_argument(
+        "--strides",
+        type=tuple,
+        default=(1, 1, 1)
+    )
+    parser.add_argument(
+        "--img-size",
+        type=int,
+        default=128
+    )
+
+    args = parser.parse_args()
+
+    print(args)
+
+    model = CNN(
+        channels=args.channels,
+        kernels=args.kernels,
+        strides=args.strides,
+        img_size=args.img_size
+    ).to(device)
     print(summary(model))
     dataloader = get_dataloader()
     optim = torch.optim.Adam(model.parameters())
