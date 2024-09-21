@@ -6,6 +6,15 @@ class CNN(nn.Module):
     def __init__(self, channels, kernels, strides, img_size):
         super().__init__()
         assert len(channels) == len(kernels) and len(kernels) == len(strides), "Channels, kernels and strides must have same length."
+
+        final_resolution = img_size
+        for i, (k, s) in enumerate(zip(kernels, strides)):
+            final_resolution = (final_resolution-k+1)/s
+            assert final_resolution.is_integer(), "Resolution is not a whole number."
+            final_resolution = int(final_resolution)
+            print(f"[{i}] Layer resolution: {final_resolution}x{final_resolution}")
+        final_resolution = int(final_resolution)
+
         self.cnn = nn.ModuleList([
             nn.Conv2d(in_channels=3, out_channels=channels[0], kernel_size=kernels[0], stride=strides[0]),
             nn.ReLU()
@@ -16,11 +25,6 @@ class CNN(nn.Module):
                 nn.Conv2d(in_channels=channels[i], out_channels=channels[i+1], kernel_size=kernels[i+1], stride=strides[i+1]),
                 nn.ReLU()
             ])
-
-        final_resolution = reduce(lambda res, ks: (res-ks[0]+1)/ks[1], zip(kernels, strides), img_size)
-        assert final_resolution.is_integer(), "Resolution is not a whole number."
-        final_resolution = int(final_resolution)
-        print(f"Final resolution of the downsampled image is {final_resolution}x{final_resolution}")
 
         self.linear = nn.Linear(in_features=channels[-1]*final_resolution**2, out_features=2)
         self.softmax = nn.Softmax(dim=1)
