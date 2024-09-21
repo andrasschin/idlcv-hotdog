@@ -159,8 +159,8 @@ if __name__ == "__main__":
         img_size=args.img_size
     ).to(device)
 
-    train_dataloader = get_dataloader(batch_size=args.batch_size)
-    test_dataloader = get_dataloader(train=False, batch_size=args.batch_size)
+    train_dataloader = get_dataloader(batch_size=args.batch_size, image_size=args.img_size)
+    test_dataloader = get_dataloader(train=False, batch_size=args.batch_size, image_size=args.img_size)
 
     optim = torch.optim.Adam(model.parameters())
     loss_fn = torch.nn.CrossEntropyLoss()
