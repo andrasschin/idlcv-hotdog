@@ -1,6 +1,8 @@
 import glob
 import os
 from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
+from torchvision import transforms
 from PIL import Image
 
 
@@ -44,8 +46,6 @@ def get_dataloader(train=True, image_size=128, batch_size=64):
 
 
 if __name__ == "__main__":
-    from torchvision import transforms
-    from torch.utils.data import DataLoader
     from rich import print
 
     batch_size = 64
