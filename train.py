@@ -8,8 +8,8 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import os
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f'Using {device} device')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#print(f'Using {device} device')
 if not os.path.exists("outputs"):
     os.mkdir("outputs")
 today = datetime.today().strftime('%m-%d-%H-%M')
@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
     
 
-    with open(f'outputs/results_{today}.txt', 'w') as f:
+    with open(f'outputs/results_{today}.txt', 'w', encoding='utf-8') as f:
         f.write(f'{summary(model)}\n')
         f.write(f'Training parameters:\n')
         f.write(f'Batch Size: {args.batch_size}\n')
