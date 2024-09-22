@@ -10,6 +10,7 @@ class HotdogDataset(Dataset):
     def __init__(
         self, train, transform, data_path="/work3/s233084/datasets/hotdog_nothotdog"
     ):
+        'Initialization'
         self.transform = transform
         data_path = os.path.join(data_path, "train" if train else "test")
         image_classes = [
@@ -20,9 +21,11 @@ class HotdogDataset(Dataset):
         self.image_paths = glob.glob(data_path + "/*/*.jpg")
 
     def __len__(self):
+        'Returns the total number of samples'
         return len(self.image_paths)
 
     def __getitem__(self, idx):
+        'Generates one sample of data'
         image_path = self.image_paths[idx]
 
         image = Image.open(image_path)
@@ -32,6 +35,7 @@ class HotdogDataset(Dataset):
         return X, y
 
 def get_dataloader(train=True, image_size=128, batch_size=64):
+    'Simple Resizing (Squishing)'
     transform = transforms.Compose([
         transforms.Resize((image_size, image_size)), 
         transforms.ToTensor()
