@@ -31,11 +31,19 @@ class HotdogDataset(Dataset):
         X = self.transform(image)
         return X, y
 
-def get_dataloader(train=True, image_size=128, batch_size=64):
-    transform = transforms.Compose([
-        transforms.Resize((image_size, image_size)), 
-        transforms.ToTensor()
-    ])
+def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotate=True, normalize=True):
+    # only ad transforms if they are true
+    transform_list = []
+    if resize:
+        transform_list.append(transforms.Resize((image_size, image_size)))
+    if rotate:
+        transform_list.append(transforms.RandomRotation(5))
+    if normalize:
+        transform_list.append(transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)))
+    # Convert a color image to grayscale and normalize the color range to [0,1].
+    transform_list.append(transforms.ToTensor())
+
+    transform = transforms.Compose(transform_list)
     dataset = HotdogDataset(train=train, transform=transform)
     dataloader = DataLoader(
         dataset, batch_size=batch_size, shuffle=True, num_workers=3
