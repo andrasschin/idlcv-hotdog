@@ -1,6 +1,9 @@
 # Zip files
 *.zip
 
+# Dataset files
+dataset/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

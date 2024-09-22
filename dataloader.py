@@ -5,16 +5,15 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from PIL import Image
 
-
 class HotdogDataset(Dataset):
     def __init__(
-        self, train, transform, data_path="/work3/s233084/datasets/hotdog_nothotdog"
+        self, train, transform, data_path="dataset\\hotdog_nothotdog\\" 
     ):
         'Initialization'
         self.transform = transform
         data_path = os.path.join(data_path, "train" if train else "test")
         image_classes = [
-            os.path.split(d)[1] for d in glob.glob(data_path + "/*") if os.path.isdir(d)
+            os.path.split(d)[1] for d in glob.glob(data_path + "\\*") if os.path.isdir(d)
         ]
         image_classes.sort()
         self.name_to_label = {c: id for id, c in enumerate(image_classes)}
@@ -44,9 +43,8 @@ def get_dataloader(train=True, image_size=128, batch_size=64):
     dataloader = DataLoader(
         dataset, batch_size=batch_size, shuffle=True, num_workers=3
     )
-
     return dataloader
-
+ 
 
 
 if __name__ == "__main__":
