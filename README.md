@@ -1,17 +1,20 @@
 ## Create a python environment
-python -m venv venv
-venv\Scripts\activate.bat
-pip install -r requirements.txt
+```python -m venv venv```
+
+```venv\Scripts\activate.bat```
+
+```pip install -r requirements.txt```
 
 ## Run the train.py script
-python train.py --channels 32 64 128 128 --kernels 7 6 3 3 --strides 2 2 2 1 --img-size 128 
+```python train.py --channels 32 64 128 128 --kernels 7 6 3 3 --strides 2 2 2 1 --img-size 128```
+
 where the channels/kernels/strides describe the parameter for the given conv layer in the network
 
 
 
-- Project hotdog_nothotdog
+## Project hotdog_nothotdog
 
-- The tasks
+The tasks
 
 - Design and train a CNN to do the classification task, evaluate its performance, and document the process. 
 
