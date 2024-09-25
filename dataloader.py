@@ -36,20 +36,20 @@ def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotat
     transform_list = []
 
     transform_list.append(transforms.ToTensor())
-
-    if rotate:
-        transform_list.append(transforms.RandomRotation(5))
-    if normalize:
-        transform_list.append(transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)))
-    if advanced_augmentation:
-        transform_list.append(transforms.RandomHorizontalFlip())
-        transform_list.append(transforms.RandomVerticalFlip())
-        transform_list.append(transforms.RandomAffine(0, translate=(0.1, 0.1)))
-        transform_list.append(transforms.RandomAffine(0, shear=5))
-        transform_list.append(transforms.RandomAffine(0, scale=(0.8, 1.2)))
-        transform_list.append(transforms.RandomAffine((-90,90)))
-        transform_list.append(transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
-        transform_list.append(transforms.RandomErasing(p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False))
+    if train:
+        if rotate:
+            transform_list.append(transforms.RandomRotation(5, antialias=True))
+        if normalize:
+            transform_list.append(transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)))
+        if advanced_augmentation:
+            transform_list.append(transforms.RandomHorizontalFlip())
+            transform_list.append(transforms.RandomVerticalFlip())
+            transform_list.append(transforms.RandomAffine(0, translate=(0.1, 0.1)))
+            transform_list.append(transforms.RandomAffine(0, shear=5))
+            transform_list.append(transforms.RandomAffine(0, scale=(0.8, 1.2)))
+            transform_list.append(transforms.RandomAffine((-90,90)))
+            transform_list.append(transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
+            transform_list.append(transforms.RandomErasing(p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False))
     if resize:
         transform_list.append(transforms.Resize((image_size, image_size)))
 
