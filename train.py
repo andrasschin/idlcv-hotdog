@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import os
 from torch.utils.data import DataLoader
 
+import warnings
+warnings.filterwarnings("ignore")
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f'Using {device} device')
 if not os.path.exists("outputs"):
@@ -67,10 +70,10 @@ def train(model, train_dataloader, val_dataloader, optim, loss_fn, num_epochs, b
             f.write(f'Epoch: [{epoch+1}]\t')
             f.write(f'Train Loss: {running_loss_train / len(train_dataloader):.4f}\t')
             f.write(f'Train Accuracy: {running_accuracy_train / (len(train_dataloader) * batch_size):.4f}\t')
-            f.write(f'Validation Loss: {running_loss_test / len(test_dataloader):.4f}\t')
-            f.write(f'Validation Accuracy: {running_accuracy_test / (len(test_dataloader) * batch_size):.4f}\n')
+            f.write(f'Validation Loss: {running_loss_test / len(val_dataloader):.4f}\t')
+            f.write(f'Validation Accuracy: {running_accuracy_test / (len(val_dataloader) * batch_size):.4f}\n')
 
-        accuracies_test.append((running_accuracy_test / (len(test_dataloader) * batch_size)).cpu().numpy())
+        accuracies_test.append((running_accuracy_test / (len(val_dataloader) * batch_size)).cpu().numpy())
 
     #Plot accuracies
     plt.plot(epochs, accuracies_train, label='Train')
@@ -166,18 +169,19 @@ if __name__ == "__main__":
     train_size = int(0.8 * len(dataset))
     val_size = len(dataset) - train_size
     train_dataset, val_dataset = torch.utils.data.random_split(dataset, [train_size, val_size])
-
+    val_dataset.dataset.do_aug = False
+    
     train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=3)
 
     val_dataloader  = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=3)
     
     test_dataloader = DataLoader(
-        get_dataset(train = False, image_size=args.img_size), batch_size=args.batch_size, shuffle=False, num_workers=3
+        get_dataset(train = False, image_size=args.img_size, do_aug=False), batch_size=args.batch_size, shuffle=False, num_workers=3
     )
     
 
 
-    optim = torch.optim.Adam(model.parameters(), lr=args.lr, )
+    optim = torch.optim.Adam(model.parameters(), lr=args.lr)
     loss_fn = torch.nn.CrossEntropyLoss()
 
     

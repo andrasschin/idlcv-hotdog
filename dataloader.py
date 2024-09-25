@@ -7,7 +7,7 @@ from PIL import Image
 
 class HotdogDataset(Dataset):
     def __init__(
-        self, train, transform, data_path="/Users/madiistvan/DTU/Fall24/IDLCV/idlcv-hotdog/hotdog_nothotdog"
+        self, train, transform, data_path="/Users/madiistvan/DTU/Fall24/IDLCV/idlcv-hotdog/hotdog_nothotdog", do_aug=True, image_size=128
     ):
         self.transform = transform
         data_path = os.path.join(data_path, "train" if train else "test")
@@ -17,7 +17,10 @@ class HotdogDataset(Dataset):
         image_classes.sort()
         self.name_to_label = {c: id for id, c in enumerate(image_classes)}
         self.image_paths = glob.glob(data_path + "/*/*.jpg")
-
+        self.do_aug = do_aug
+        self.basic_transform = transforms.Compose([transforms.ToTensor(), transforms.Resize((image_size, image_size))])
+        self.image_size = image_size
+        
     def __len__(self):
         return len(self.image_paths)
 
@@ -27,14 +30,18 @@ class HotdogDataset(Dataset):
         image = Image.open(image_path)
         c = os.path.split(os.path.split(image_path)[0])[1]
         y = self.name_to_label[c]
-        X = self.transform(image)
-        return X, y
 
-def get_dataset(train=True, image_size=128, resize=True, rotate=True, normalize=True, advanced_augmentation=True):
+        if self.do_aug:
+            X = self.transform(image)
+        else:
+            X = self.basic_transform(image)
+        return X, y
+    
+def get_dataset(train=True, image_size=128, resize=True, rotate=True, normalize=True, advanced_augmentation=True, do_aug=True):
     transform_list = []
 
     transform_list.append(transforms.ToTensor())
-    if train:
+    if do_aug:
         if rotate:
             transform_list.append(transforms.RandomRotation(5))
         if normalize:
@@ -53,7 +60,7 @@ def get_dataset(train=True, image_size=128, resize=True, rotate=True, normalize=
 
 
     transform = transforms.Compose(transform_list)
-    dataset = HotdogDataset(train=train, transform=transform)
+    dataset = HotdogDataset(train=train, transform=transform, do_aug=do_aug, image_size=image_size)
     
     return dataset
 
@@ -64,8 +71,8 @@ if __name__ == "__main__":
 
     batch_size = 64
     image_size = 128
-    train_loader = get_dataloader(train=True, batch_size=batch_size, image_size=image_size)
-    test_loader = get_dataloader(train=False, batch_size=batch_size, image_size=image_size)
+    train_loader = get_dataset(train=True, batch_size=batch_size, image_size=image_size)
+    test_loader = get_dataset(train=False, batch_size=batch_size, image_size=image_size)
 
     next_train = next(iter(train_loader))
     next_test = next(iter(test_loader))
