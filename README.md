@@ -11,9 +11,9 @@
 where the channels/kernels/strides describe the parameter for the given conv layer in the network
 
 ## Data Loader 
-The ```get_dataset``` function is designed to prepare and return a dataset with various transformations applied to the images. It takes several parameters that control the nature of these transformations, such as whether the dataset is for `training` (train), the desired `image size` (image_size), and several boolean flags that enable or disable specific transformations. All the transformations in transform_list are then composed into a single transformation pipeline using transforms.Compose.Finally, an instance of the HotdogDataset class is created with the specified parameters and the composed transformation pipeline. 
-
 `HotdogDataset class` handles loading the images and applying the transformations when the dataset is accessed.
+
+```get_dataset``` function is designed to prepare and return a dataset with various transformations applied to the images. It takes several parameters that control the nature of these transformations, such as whether the dataset is for `training` (train), the desired `image size` (image_size), and several boolean flags that enable or disable specific transformations.Finally, an instance of the HotdogDataset class is created with the specified parameters and the composed transformation pipeline. 
 
 ## Project hotdog_nothotdog
 
