@@ -21,7 +21,7 @@ class CNN(nn.Module):
         
         for i in range(len(channels)-1):    
             self.cnn.extend([
-                nn.BatchNorm2d(channels[i]),
+                #nn.BatchNorm2d(channels[i]),
                 nn.Conv2d(in_channels=channels[i], out_channels=channels[i+1], kernel_size=kernels[i+1], stride=strides[i+1]),
                 nn.ReLU()
             ])
@@ -34,8 +34,7 @@ class CNN(nn.Module):
             x = layer(x)
         x = x.view(-1, x.shape[1]*x.shape[2]*x.shape[3])
         x = self.linear(x)
-        x = self.softmax(x)
-
+        # Remove softmax because we have CrossEntropyLoss
         return x
 
 if __name__ == "__main__":

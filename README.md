@@ -22,14 +22,32 @@ The tasks
 - Design and train a CNN to do the classification task, evaluate its performance, and document the process. 
 
     - • How did you decide on your architecture? Did you start out with something else? How/why did you decide to change it?
+    We started with a basic architecture in order to get things running and inspect our simple model performance. Here is the training-validation scores for accuracy!
+    Epoch: [20]	Train Loss: 0.5075	Train Accuracy: 0.8003	Validation Loss: 0.5846	Validation Accuracy: 0.6958
+    Channels: [32, 64, 128, 128]
+    Kernels: [7, 6, 3, 3]
+    Strides: [2, 2, 2, 1]
+    Image Size: 128
+    ----------------------
+    [0] Layer resolution: 61x61
+    [1] Layer resolution: 28x28
+    [2] Layer resolution: 13x13
+    [3] Layer resolution: 11x11
+    
+    With this simple architecture we scored 
+ 
 
     - • How did you train it? Which optimizer did you use? Did you compare using different optimizers? Did you do other things to improve your training? 
+        We firstly train it without any data augmentation and preprocessing. We only resized the images and begin the process. We used Adam Optimizer.
 
     - • Did you use any data augmentation? Did you check if the data augmentation improved performance? 
+        Yes....
 
     - • Did you use batch normalization? Does it improve the performance? 
+        Yes...
 
     - • What is the accuracy of your network? Which test images are classified wrong? Any of them for obvious reasons? 
+        This....Yes there are classified wrong because...
 
     - • Did you use transfer learning? Does it improve the performance? 
 

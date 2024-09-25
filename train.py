@@ -13,7 +13,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#print(f'Using {device} device')
 if not os.path.exists("outputs"):
     os.mkdir("outputs")
 today = datetime.today().strftime('%m-%d-%H-%M')
@@ -112,6 +111,7 @@ def eval(model, test_dataloader, loss_fn, batch_size=64):
 if __name__ == "__main__":
     from rich import print
 
+    ############################ Argument Parsing ############################
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--batch-size",
@@ -153,40 +153,55 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-
     print(args)
 
+    ############################ Model Creation ############################
     model = CNN(
         channels=args.channels,
         kernels=args.kernels,
         strides=args.strides,
         img_size=args.img_size
     ).to(device)
+    
+    
+    ############################ Parameters ############################
+    resize = False
+    rotate = False
+    normalize = False
+    advanced_augmentation = False
+    do_aug = False
+    apply_all_transforms = True
+    
+    
+    
+    
+    ############################ Dataset Creation ############################
+    dataset = get_dataset(train = True, image_size=args.img_size, resize=resize, 
+                          rotate=rotate, normalize=normalize, advanced_augmentation=advanced_augmentation,
+                          do_aug=do_aug, apply_all_transforms=apply_all_transforms)
 
-    dataset = get_dataset(train = True, image_size=args.img_size)
-
-    # split test val dataset
+    ############################ Train-Val-Test Split ############################
     train_size = int(0.8 * len(dataset))
     val_size = len(dataset) - train_size
     train_dataset, val_dataset = torch.utils.data.random_split(dataset, [train_size, val_size])
+    train_dataset.dataset.do_aug = False
     val_dataset.dataset.do_aug = False
     
+    ############################ Data Loaders ############################
     train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=3)
-
     val_dataloader  = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=3)
     
     test_dataloader = DataLoader(
         get_dataset(train = False, image_size=args.img_size, do_aug=False), batch_size=args.batch_size, shuffle=False, num_workers=3
     )
     
-
-
+    ############################ Optimizer-Loss Function ############################
     optim = torch.optim.Adam(model.parameters(), lr=args.lr)
     loss_fn = torch.nn.CrossEntropyLoss()
 
     
-
-    with open(f'outputs/results_{today}.txt', 'w', encoding='utf-8') as f:
+    ############################ Logging ############################
+    with open(f'outputs/results_{today}.txt', 'w',encoding='utf-8') as f:
         f.write(f'{summary(model)}\n')
         f.write(f'Training parameters:\n')
         f.write(f'Batch Size: {args.batch_size}\n')
