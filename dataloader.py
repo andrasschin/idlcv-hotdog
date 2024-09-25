@@ -8,7 +8,7 @@ from PIL import Image
 
 class HotdogDataset(Dataset):
     def __init__(
-        self, train, transform, data_path="/work3/s233084/datasets/hotdog_nothotdog"
+        self, train, transform, data_path="/Users/madiistvan/DTU/Fall24/IDLCV/idlcv-hotdog/hotdog_nothotdog"
     ):
         self.transform = transform
         data_path = os.path.join(data_path, "train" if train else "test")
@@ -34,8 +34,9 @@ class HotdogDataset(Dataset):
 def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotate=True, normalize=True, advanced_augmentation=True):
     # only ad transforms if they are true
     transform_list = []
-    if resize:
-        transform_list.append(transforms.Resize((image_size, image_size)))
+
+    transform_list.append(transforms.ToTensor())
+
     if rotate:
         transform_list.append(transforms.RandomRotation(5))
     if normalize:
@@ -46,10 +47,12 @@ def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotat
         transform_list.append(transforms.RandomAffine(0, translate=(0.1, 0.1)))
         transform_list.append(transforms.RandomAffine(0, shear=5))
         transform_list.append(transforms.RandomAffine(0, scale=(0.8, 1.2)))
-        transform_list.append(transforms.RandomAffine(0, rotation=5))
+        transform_list.append(transforms.RandomAffine((-90,90)))
         transform_list.append(transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
         transform_list.append(transforms.RandomErasing(p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False))
-    transform_list.append(transforms.ToTensor())
+    if resize:
+        transform_list.append(transforms.Resize((image_size, image_size)))
+
 
     transform = transforms.Compose(transform_list)
     dataset = HotdogDataset(train=train, transform=transform)
