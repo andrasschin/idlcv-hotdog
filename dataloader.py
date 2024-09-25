@@ -6,7 +6,7 @@ from PIL import Image
 
 class HotdogDataset(Dataset):
     def __init__(
-        self, train, transform, data_path="dataset\\hotdog_nothotdog\\", do_aug=True, image_size=128 
+        self, train, transform, data_path="dataset\\hotdog_nothotdog\\", do_aug=False, image_size=128, apply_all_transforms=False
     ):
         self.transform = transform
         data_path = os.path.join(data_path, "train" if train else "test")
@@ -17,6 +17,7 @@ class HotdogDataset(Dataset):
         self.name_to_label = {c: id for id, c in enumerate(image_classes)}
         self.image_paths = glob.glob(data_path + "/*/*.jpg")
         self.do_aug = do_aug
+        self.apply_all_transforms = apply_all_transforms
         self.basic_transform = transforms.Compose([transforms.ToTensor(), transforms.Resize((image_size, image_size))])
         self.image_size = image_size
         
@@ -25,18 +26,22 @@ class HotdogDataset(Dataset):
 
     def __getitem__(self, idx):
         image_path = self.image_paths[idx]
-
         image = Image.open(image_path)
         c = os.path.split(os.path.split(image_path)[0])[1]
         y = self.name_to_label[c]
 
-        if self.do_aug:
+        if self.do_aug and self.apply_all_transforms:
+            transformed_images = [self.basic_transform(image)]
+            for t in self.transform.transforms:
+                transformed_images.append(t(image))
+            return transformed_images, y
+        elif self.do_aug:
             X = self.transform(image)
         else:
             X = self.basic_transform(image)
         return X, y
     
-def get_dataset(train=True, image_size=128, resize=True, rotate=True, normalize=True, advanced_augmentation=True, do_aug=True):
+def get_dataset(train=True, image_size=128, resize=False, rotate=False, normalize=False, advanced_augmentation=False, do_aug=False, apply_all_transforms=False):
     transform_list = []
 
     transform_list.append(transforms.ToTensor())
@@ -58,18 +63,28 @@ def get_dataset(train=True, image_size=128, resize=True, rotate=True, normalize=
         transform_list.append(transforms.Resize((image_size, image_size)))
 
     transform = transforms.Compose(transform_list)
-    dataset = HotdogDataset(train=train, transform=transform, do_aug=do_aug, image_size=image_size)
+    dataset = HotdogDataset(train=train, transform=transform, do_aug=do_aug, image_size=image_size, apply_all_transforms=apply_all_transforms)
     
     return dataset
 
  
 if __name__ == "__main__":
     from rich import print
+    
+    apply_all_transforms = True
+    do_aug = True
+    rotate = True
+    resize = True
+    normalize = True
+    advanced_augmentation = True
+    
 
     batch_size = 64
     image_size = 128
-    train_loader = get_dataset(train=True, batch_size=batch_size, image_size=image_size)
-    test_loader = get_dataset(train=False, batch_size=batch_size, image_size=image_size)
+    train_loader = get_dataset(train=True, image_size=image_size, resize=resize, rotate=rotate, normalize=normalize, 
+                               advanced_augmentation=advanced_augmentation, do_aug=do_aug, apply_all_transforms = apply_all_transforms)
+    test_loader = get_dataset(train=False, image_size=image_size, resize=resize, rotate=rotate, normalize=normalize, 
+                               advanced_augmentation=advanced_augmentation, do_aug=do_aug, apply_all_transforms = apply_all_transforms)
 
     next_train = next(iter(train_loader))
     next_test = next(iter(test_loader))
