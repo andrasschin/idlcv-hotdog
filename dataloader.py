@@ -30,8 +30,11 @@ class HotdogDataset(Dataset):
         y = self.name_to_label[c]
         X = self.transform(image)
         return X, y
+    
+# Create a transform that selects a random crop of size image_size x image_size from the image if it is larger than image_size if it is smaller fill the rest with zeros.
 
-def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotate=True, normalize=True):
+
+def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotate=True, normalize=True, advanced_augmentation=True):
     # only ad transforms if they are true
     transform_list = []
     if resize:
@@ -40,6 +43,16 @@ def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotat
         transform_list.append(transforms.RandomRotation(5))
     if normalize:
         transform_list.append(transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)))
+    if advanced_augmentation:
+        transform_list.append(transforms.RandomHorizontalFlip())
+        transform_list.append(transforms.RandomVerticalFlip())
+        transform_list.append(transforms.RandomAffine(0, translate=(0.1, 0.1)))
+        transform_list.append(transforms.RandomAffine(0, shear=5))
+        transform_list.append(transforms.RandomAffine(0, scale=(0.8, 1.2)))
+        transform_list.append(transforms.RandomAffine(0, rotation=5))
+        transform_list.append(transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
+        transform_list.append(transforms.RandomErasing(p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False))
+
     # Convert a color image to grayscale and normalize the color range to [0,1].
     transform_list.append(transforms.ToTensor())
 
