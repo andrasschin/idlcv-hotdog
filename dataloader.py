@@ -6,7 +6,7 @@ from PIL import Image
 
 class HotdogDataset(Dataset):
     def __init__(
-        self, train, transform, data_path="dataset\\hotdog_nothotdog\\" 
+        self, train, transform, data_path="dataset\\hotdog_nothotdog\\", do_aug=True, image_size=128 
     ):
         self.transform = transform
         data_path = os.path.join(data_path, "train" if train else "test")
@@ -63,8 +63,7 @@ def get_dataset(train=True, image_size=128, resize=True, rotate=True, normalize=
     
     return dataset
 
-
-
+ 
 if __name__ == "__main__":
     from rich import print
 
