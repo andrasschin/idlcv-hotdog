@@ -37,7 +37,7 @@ def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotat
     transform_list.append(transforms.ToTensor())
     if train:
         if rotate:
-            transform_list.append(transforms.RandomRotation(5, antialias=True))
+            transform_list.append(transforms.RandomRotation(5))
         if normalize:
             transform_list.append(transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)))
         if advanced_augmentation:
