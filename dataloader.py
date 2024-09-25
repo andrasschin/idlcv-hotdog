@@ -32,7 +32,6 @@ class HotdogDataset(Dataset):
         return X, y
 
 def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotate=True, normalize=True, advanced_augmentation=True):
-    # only ad transforms if they are true
     transform_list = []
 
     transform_list.append(transforms.ToTensor())
@@ -57,7 +56,7 @@ def get_dataloader(train=True, image_size=128, batch_size=64, resize=True, rotat
     transform = transforms.Compose(transform_list)
     dataset = HotdogDataset(train=train, transform=transform)
     dataloader = DataLoader(
-        dataset, batch_size=batch_size, shuffle=True, num_workers=3
+        dataset, batch_size=batch_size, shuffle=train, num_workers=3
     )
 
     return dataloader
