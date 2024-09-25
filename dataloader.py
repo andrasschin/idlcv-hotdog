@@ -57,7 +57,6 @@ def get_dataset(train=True, image_size=128, resize=True, rotate=True, normalize=
     if resize:
         transform_list.append(transforms.Resize((image_size, image_size)))
 
-
     transform = transforms.Compose(transform_list)
     dataset = HotdogDataset(train=train, transform=transform, do_aug=do_aug, image_size=image_size)
     
