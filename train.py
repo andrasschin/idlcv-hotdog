@@ -147,6 +147,12 @@ if __name__ == "__main__":
         default=[2, 2, 2, 1]
     )
     parser.add_argument(
+        "--paddings",
+        type=int,
+        nargs="+",
+        default=[2, 1, 1, 1]
+    )
+    parser.add_argument(
         "--img-size",
         type=int,
         default=128
@@ -160,6 +166,7 @@ if __name__ == "__main__":
         channels=args.channels,
         kernels=args.kernels,
         strides=args.strides,
+        paddings=args.paddings,
         img_size=args.img_size
     ).to(device)
     
@@ -197,6 +204,7 @@ if __name__ == "__main__":
     
     ############################ Optimizer-Loss Function ############################
     optim = torch.optim.Adam(model.parameters(), lr=args.lr)
+    #optim =torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9)
     loss_fn = torch.nn.CrossEntropyLoss()
 
     

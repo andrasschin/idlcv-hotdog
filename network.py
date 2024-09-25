@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class CNN(nn.Module):
-    def __init__(self, channels, kernels, strides, img_size):
+    def __init__(self, channels, kernels, strides, paddings, img_size):
         super().__init__()
         assert len(channels) == len(kernels) and len(kernels) == len(strides), "Channels, kernels and strides must have same length."
 
@@ -15,19 +15,19 @@ class CNN(nn.Module):
         final_resolution = int(final_resolution)
 
         self.cnn = nn.ModuleList([
-            nn.Conv2d(in_channels=3, out_channels=channels[0], kernel_size=kernels[0], stride=strides[0]),
+            nn.Conv2d(in_channels=3, out_channels=channels[0], kernel_size=kernels[0], stride=strides[0], padding=paddings[0]),
             nn.ReLU()
         ])
         
         for i in range(len(channels)-1):    
             self.cnn.extend([
                 #nn.BatchNorm2d(channels[i]),
-                nn.Conv2d(in_channels=channels[i], out_channels=channels[i+1], kernel_size=kernels[i+1], stride=strides[i+1]),
+                nn.Conv2d(in_channels=channels[i], out_channels=channels[i+1], kernel_size=kernels[i+1], stride=strides[i+1], padding=paddings[i+1]),
                 nn.ReLU()
             ])
 
         self.linear = nn.Linear(in_features=channels[-1]*final_resolution**2, out_features=2)
-        self.softmax = nn.Softmax(dim=1)
+        #self.softmax = nn.Softmax(dim=1) Remove softmax because we have CrossEntropyLoss
 
     def forward(self, x):
         for layer in self.cnn:
