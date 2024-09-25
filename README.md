@@ -6,8 +6,8 @@
 ```pip install -r requirements.txt```
 
 ## Run the train.py script
-```python train.py --channels 32 64 128 128 --kernels 5 3 3 3 --strides 1 1 1 1 --padding 2 1 1 1  --img-size 128```
-
+```python train.py --channels 32 64 128 128 --kernels 7 6 3 3 --strides 2 2 2 1 --paddings 0 0 0 0 --img-size 128 --dropout 0.0```
+```python train.py --channels 32 64 128 128 --kernels 7 6 3 3 --strides 2 2 2 1 --paddings 0 0 0 0 --img-size 128 --dropout 0.2```
 where the channels/kernels/strides describe the parameter for the given conv layer in the network
 
 ## Data Loader 

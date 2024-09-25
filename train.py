@@ -111,7 +111,6 @@ def eval(model, test_dataloader, loss_fn, batch_size=64):
 if __name__ == "__main__":
     from rich import print
 
-    ############################ Argument Parsing ############################
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--batch-size",
@@ -123,40 +122,13 @@ if __name__ == "__main__":
         type=int,
         default=20,
     )
-    parser.add_argument(
-        "--lr",
-        type=float,
-        default=1e-3
-    )
-    parser.add_argument(
-        "--channels",
-        type=int,
-        nargs="+",
-        default=[32, 64, 64, 64]
-    )
-    parser.add_argument(
-        "--kernels",
-        type=int,
-        nargs="+",
-        default=[7, 6, 3, 3]
-    )
-    parser.add_argument(
-        "--strides",
-        type=int,
-        nargs="+",
-        default=[2, 2, 2, 1]
-    )
-    parser.add_argument(
-        "--paddings",
-        type=int,
-        nargs="+",
-        default=[2, 1, 1, 1]
-    )
-    parser.add_argument(
-        "--img-size",
-        type=int,
-        default=128
-    )
+    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--channels", type=int, nargs="+", default=[32, 64, 64, 64])
+    parser.add_argument("--kernels", type=int, nargs="+", default=[7, 6, 3, 3])
+    parser.add_argument("--strides", type=int, nargs="+", default=[2, 2, 2, 1])
+    parser.add_argument("--paddings", type=int, nargs="+", default=[0, 0, 0, 0])
+    parser.add_argument("--img-size", type=int, default=128)
+    parser.add_argument("--dropout", type=float, default=0.0)
 
     args = parser.parse_args()
     print(args)
@@ -167,7 +139,8 @@ if __name__ == "__main__":
         kernels=args.kernels,
         strides=args.strides,
         paddings=args.paddings,
-        img_size=args.img_size
+        img_size=args.img_size,
+        dropout_p=args.dropout
     ).to(device)
     
     
