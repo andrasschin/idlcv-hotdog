@@ -19,8 +19,9 @@ class CNN(nn.Module):
             nn.ReLU()
         ])
         
-        for i in range(len(channels)-1):
+        for i in range(len(channels)-1):    
             self.cnn.extend([
+                nn.BatchNorm2d(channels[i]),
                 nn.Conv2d(in_channels=channels[i], out_channels=channels[i+1], kernel_size=kernels[i+1], stride=strides[i+1]),
                 nn.ReLU()
             ])
