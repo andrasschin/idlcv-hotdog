@@ -5,7 +5,7 @@ import sys
 
 random.seed(0)
 
-base_path = "/work3/s233084/datasets/hotdog_nothotdog/"
+base_path = "/Users/madiistvan/DTU/Fall24/IDLCV/idlcv-hotdog/hotdog_nothotdog/"
 
 if os.path.exists(base_path + "validation"):
     sys.exit(0)

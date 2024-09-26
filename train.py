@@ -1,7 +1,7 @@
 import torch
 from tqdm import tqdm
 from dataloader import get_dataset
-from network import CNN
+from my_network import CNN
 import argparse
 from datetime import datetime
 import os
@@ -163,10 +163,12 @@ if __name__ == "__main__":
         default=20,
     )
     parser.add_argument("--lr", type=float, default=1e-3)
-    parser.add_argument("--channels", type=int, nargs="+", default=[32, 64, 64, 64])
-    parser.add_argument("--kernels", type=int, nargs="+", default=[7, 6, 3, 3])
-    parser.add_argument("--strides", type=int, nargs="+", default=[2, 2, 2, 1])
+    parser.add_argument("--channels", type=int, nargs="+", default=[32, 64, 64, 64, 32])
+    parser.add_argument("--kernels", type=int, nargs="+", default=[7, 3, 4, 3, 2])
+    parser.add_argument("--strides", type=int, nargs="+", default=[2, 1, 2, 1, 1])
     parser.add_argument("--img-size", type=int, default=128)
+    parser.add_argument("--residual", type=int, default=5)
+
     parser.add_argument("--dropout", type=float, default=0.0)
 
     args = parser.parse_args()
@@ -179,6 +181,7 @@ if __name__ == "__main__":
         strides=args.strides,
         img_size=args.img_size,
         dropout_p=args.dropout,
+        n_residuals=args.residual,
     ).to(device)
 
     trainset = get_dataset(subset="train", image_size=args.img_size, do_aug=True)
@@ -186,18 +189,17 @@ if __name__ == "__main__":
     testset = get_dataset(subset="test", image_size=args.img_size, do_aug=False)
 
     train_dataloader = DataLoader(
-        trainset, batch_size=args.batch_size, shuffle=True, num_workers=3
+        trainset, batch_size=args.batch_size, shuffle=True
     )
 
     val_dataloader = DataLoader(
-        valset, batch_size=args.batch_size, shuffle=False, num_workers=3
+        valset, batch_size=args.batch_size, shuffle=False
     )
 
     test_dataloader = DataLoader(
         testset,
         batch_size=args.batch_size,
         shuffle=False,
-        num_workers=3,
     )
 
     optim = torch.optim.Adam(model.parameters(), lr=args.lr)

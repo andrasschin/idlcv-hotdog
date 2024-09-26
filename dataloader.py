@@ -11,7 +11,7 @@ class HotdogDataset(Dataset):
         subset,
         transform,
         image_size,
-        data_path="/work3/s233084/datasets/hotdog_nothotdog",
+        data_path="/Users/madiistvan/DTU/Fall24/IDLCV/idlcv-hotdog/hotdog_nothotdog/",
     ):
         assert subset in ["train", "validation", "test"]
         self.transform = transform
