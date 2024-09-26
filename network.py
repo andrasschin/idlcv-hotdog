@@ -47,14 +47,14 @@ class CNN(nn.Module):
         self.linear = nn.Linear(
             in_features=channels[-1] * final_resolution**2, out_features=2
         )
-        self.softmax = nn.Softmax(dim=1)
+        # self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         for layer in self.cnn:
             x = layer(x)
         x = x.view(-1, x.shape[1] * x.shape[2] * x.shape[3])
         x = self.linear(x)
-        x = self.softmax(x)
+        # x = self.softmax(x)
 
         return x
 

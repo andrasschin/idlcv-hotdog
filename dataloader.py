@@ -8,24 +8,20 @@ from PIL import Image
 class HotdogDataset(Dataset):
     def __init__(
         self,
-        train,
+        subset,
         transform,
+        image_size,
         data_path="/work3/s233084/datasets/hotdog_nothotdog",
-        do_aug=True,
-        image_size=128,
     ):
+        assert subset in ["train", "validation", "test"]
         self.transform = transform
-        data_path = os.path.join(data_path, "train" if train else "test")
+        data_path = os.path.join(data_path, subset)
         image_classes = [
             os.path.split(d)[1] for d in glob.glob(data_path + "/*") if os.path.isdir(d)
         ]
         image_classes.sort()
         self.name_to_label = {c: id for id, c in enumerate(image_classes)}
         self.image_paths = glob.glob(data_path + "/*/*.jpg")
-        self.do_aug = do_aug
-        self.basic_transform = transforms.Compose(
-            [transforms.ToTensor(), transforms.Resize((image_size, image_size))]
-        )
         self.image_size = image_size
 
     def __len__(self):
@@ -38,56 +34,53 @@ class HotdogDataset(Dataset):
         c = os.path.split(os.path.split(image_path)[0])[1]
         y = self.name_to_label[c]
 
-        if self.do_aug:
-            X = self.transform(image)
-        else:
-            X = self.basic_transform(image)
+        X = self.transform(image)
+
         return X, y
 
 
 def get_dataset(
-    train=True,
-    image_size=128,
-    resize=True,
-    rotate=True,
-    normalize=True,
-    advanced_augmentation=True,
-    do_aug=True,
+    subset,
+    image_size,
+    do_aug,
 ):
-    transform_list = []
-
-    transform_list.append(transforms.ToTensor())
-    if do_aug:
-        if rotate:
-            transform_list.append(transforms.RandomRotation(5))
-        if normalize:
-            transform_list.append(
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-            )
-        if advanced_augmentation:
-            transform_list.append(transforms.RandomHorizontalFlip())
-            transform_list.append(transforms.RandomVerticalFlip())
-            transform_list.append(transforms.RandomAffine(0, translate=(0.1, 0.1)))
-            transform_list.append(transforms.RandomAffine(0, shear=5))
-            transform_list.append(transforms.RandomAffine(0, scale=(0.8, 1.2)))
-            transform_list.append(transforms.RandomAffine((-90, 90)))
-            transform_list.append(
-                transforms.ColorJitter(
-                    brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5
-                )
-            )
-            transform_list.append(
-                transforms.RandomErasing(
-                    p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False
-                )
-            )
-    if resize:
-        transform_list.append(transforms.Resize((image_size, image_size)))
-
-    transform = transforms.Compose(transform_list)
-    dataset = HotdogDataset(
-        train=train, transform=transform, do_aug=do_aug, image_size=image_size
+    augmentation_transforms = transforms.RandomChoice(
+        [
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomVerticalFlip(),
+            transforms.RandomRotation(10),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.RandomErasing(
+                p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False
+            ),
+            transforms.RandomAffine(0, translate=(0.1, 0.1)),
+            transforms.RandomAffine(0, shear=5),
+            transforms.RandomAffine(0, scale=(0.8, 1.2)),
+            transforms.ColorJitter(
+                brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1
+            ),
+        ]
     )
+
+    if do_aug:
+        transform = transforms.Compose(
+            [
+                transforms.Resize((image_size, image_size)),
+                transforms.ToTensor(),
+                augmentation_transforms,
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            ]
+        )
+    else:
+        transform = transforms.Compose(
+            [
+                transforms.Resize((image_size, image_size)),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            ]
+        )
+
+    dataset = HotdogDataset(subset=subset, transform=transform, image_size=image_size)
 
     return dataset
 

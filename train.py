@@ -29,7 +29,7 @@ os.mkdir("outputs/" + now)
 
 
 def train(model, train_dataloader, val_dataloader, optim, loss_fn, num_epochs):
-    scheduler = StepLR(optim, step_size=30, gamma=0.05)
+    scheduler = StepLR(optim, step_size=20, gamma=0.06)
     accuracies_train = []
     accuracies_val = []
     best_val_accuracy = 0.0
@@ -56,15 +56,15 @@ def train(model, train_dataloader, val_dataloader, optim, loss_fn, num_epochs):
             running_loss_train += loss.item()
             total_samples += target.shape[0]
             progress_bar.set_postfix(
-                {"Loss": f"{running_loss_train / len(train_dataloader):.4f}"}
+                {"Loss": f"{running_loss_train / len(train_dataloader):.3f}"}
             )
 
         train_accuracy = n_correct_classifications / total_samples
         train_loss = running_loss_train / total_samples
         accuracies_train.append(train_accuracy)
-        # print(f"[TRAIN] Epoch [{epoch + 1}/{num_epochs}], Loss: {train_loss:.4f}")
+        # print(f"[TRAIN] Epoch [{epoch + 1}/{num_epochs}], Loss: {train_loss:.3f}")
         print(
-            f"[TRAIN] Epoch [{epoch + 1}/{num_epochs}], Accuracy: {train_accuracy:.4f}"
+            f"[TRAIN] Epoch [{epoch + 1}/{num_epochs}], Accuracy: {train_accuracy:.3f}"
         )
 
         # Evaluate
@@ -91,8 +91,8 @@ def train(model, train_dataloader, val_dataloader, optim, loss_fn, num_epochs):
             best_val_accuracy = val_accuracy
             # torch.save(model, f"outputs/{now}/best_model_{val_accuracy:.1f}.pkl")
 
-        # print(f"[VAL] Epoch [{epoch + 1}/{num_epochs}], Loss: {val_loss:.4f}")
-        print(f"[VAL] Epoch [{epoch + 1}/{num_epochs}], Accuracy: {val_accuracy:.4f}")
+        # print(f"[VAL] Epoch [{epoch + 1}/{num_epochs}], Loss: {val_loss:.3f}")
+        print(f"[VAL] Epoch [{epoch + 1}/{num_epochs}], Accuracy: {val_accuracy:.3f}")
 
         write_results(
             epoch=epoch,
@@ -139,11 +139,11 @@ def test(model, test_dataloader, loss_fn):
         test_accuracy = n_correct_classifications / total_samples
         test_loss = running_loss_test / total_samples
 
-        # print(f'[TEST] Loss: {test_loss:.4f}')
-        print(f"[TEST] Accuracy: {test_accuracy:.4f}")
+        # print(f'[TEST] Loss: {test_loss:.3f}')
+        print(f"[TEST] Accuracy: {test_accuracy:.3f}")
     cm = confusion_matrix(all_labels, all_preds)
     write_test_results(test_loss=test_loss, test_accuracy=test_accuracy, now=now)
-    plot_confusion_matrix(cm=cm, now=now)
+    plot_confusion_matrix(cm=cm, test_accuracy=test_accuracy, now=now)
 
     print(f"Finished evaluation, results saved to outputs/{now}.")
 
@@ -181,26 +181,20 @@ if __name__ == "__main__":
         dropout_p=args.dropout,
     ).to(device)
 
-    dataset = get_dataset(train=True, image_size=args.img_size)
-
-    # split test val dataset
-    train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    train_dataset, val_dataset = torch.utils.data.random_split(
-        dataset, [train_size, val_size]
-    )
-    val_dataset.dataset.do_aug = False
+    trainset = get_dataset(subset="train", image_size=args.img_size, do_aug=True)
+    valset = get_dataset(subset="validation", image_size=args.img_size, do_aug=False)
+    testset = get_dataset(subset="test", image_size=args.img_size, do_aug=False)
 
     train_dataloader = DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=3
+        trainset, batch_size=args.batch_size, shuffle=True, num_workers=3
     )
 
     val_dataloader = DataLoader(
-        val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=3
+        valset, batch_size=args.batch_size, shuffle=False, num_workers=3
     )
 
     test_dataloader = DataLoader(
-        get_dataset(train=False, image_size=args.img_size, do_aug=False),
+        testset,
         batch_size=args.batch_size,
         shuffle=False,
         num_workers=3,
@@ -210,12 +204,15 @@ if __name__ == "__main__":
     loss_fn = torch.nn.CrossEntropyLoss()
     write_config(cfg=args, model=model, now=now)
 
-    train(
-        model=model,
-        train_dataloader=train_dataloader,
-        val_dataloader=val_dataloader,
-        optim=optim,
-        loss_fn=loss_fn,
-        num_epochs=args.epochs,
-    )
-    test(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn)
+    try:
+        train(
+            model=model,
+            train_dataloader=train_dataloader,
+            val_dataloader=val_dataloader,
+            optim=optim,
+            loss_fn=loss_fn,
+            num_epochs=args.epochs,
+        )
+        test(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn)
+    except KeyboardInterrupt:
+        test(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn)
