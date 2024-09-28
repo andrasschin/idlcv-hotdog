@@ -155,21 +155,20 @@ def test(model, test_dataloader, loss_fn, device, save_dir):
                 # Convert the image tensor to a PIL image
                 pil_image = Image.fromarray(img)
 
-                # Initialize ImageDraw
-                draw = ImageDraw.Draw(pil_image)
+                # # Initialize ImageDraw
+                # draw = ImageDraw.Draw(pil_image)
 
-                # Define font and size (you may need to adjust the path to the font file)
-                font = ImageFont.load_default()
+                # # Define font and size (you may need to adjust the path to the font file)
+                # font = ImageFont.load_default()
 
-                # Define text to add
-                text = f"Pred: {predicted_label_str}, Actual: {actual_label_str}"
+                # # Define text to add
+                # text = f"Pred: {predicted_label_str}, Actual: {actual_label_str}"
 
-                # Add text to image
-                draw.text((10, 10), text, font=font, fill=(255, 255, 255))
+                # # Add text to image
+                # draw.text((3, 3), text, font=font, fill=(0, 0, 255))
 
                 # Save image with text
                 filename = f"{save_dir}/img_{total_samples + i}_{predicted_label_str}.png"
-
                 pil_image.save(filename)
 
         test_accuracy = n_correct_classifications / total_samples
