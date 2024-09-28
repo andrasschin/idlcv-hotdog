@@ -255,5 +255,6 @@ if __name__ == "__main__":
                 num_epochs=args.epochs,
             )
         test(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn,device=device,save_dir='outputs/saved_images')
+        torch.save(model, 'CNN.pth')
     except KeyboardInterrupt:
         test(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn,device=device,save_dir='outputs/saved_images')
