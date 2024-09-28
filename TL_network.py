@@ -1,32 +1,31 @@
 import torch
 import torch.nn as nn
-from torchvision import models
-
-class FeatureExtractor(nn.Module):
-    def __init__(self, num_classes=2):
-        super(FeatureExtractor, self).__init__()
+import torchvision.models as models
+import torchvision.transforms as transforms
+class ResNet50Model(nn.Module):
+    def __init__(self, num_classes=2, pretrained=True):
+        super(ResNet50Model, self).__init__()
         
-        # Load a pre-trained ResNet model
-        self.base_model = models.resnet18(pretrained=True)
+        self.base_model = models.resnet50(weights='IMAGENET1K_V1' if pretrained else None)
+        in_features = self.base_model.fc.in_features
         
-        # Remove the final classification layer (the fully connected layer)
-        self.base_model = nn.Sequential(*(list(self.base_model.children())[:-1]))  # Keeps everything except the last layer
+        # Remove the original fully connected layer
+        self.base_model.fc = nn.Identity()  
         
-        # Flattening layer to convert the output into a 1D vector
-        self.flatten = nn.Flatten()
-        
-        # New classifier layer
-        self.classifier = nn.Linear(self.base_model[-1].in_features, num_classes)
+        # Add custom layers
+        self.fc1 = nn.Linear(in_features, 1000) 
+        self.dropout = nn.Dropout(0.3)
+        self.fc2 = nn.Linear(1000, num_classes)  
 
     def forward(self, x):
-        # Pass the input through the pre-trained model
-        x = self.base_model(x)
-        x = self.flatten(x)  # Flatten the output
-        x = self.classifier(x)  # Classify using the new classifier
+        x = self.base_model(x)  
+        x = self.fc1(x) 
+        x = self.dropout(x) 
+        x = self.fc2(x)
         return x
 
 if __name__ == "__main__":
-    model = FeatureExtractor(num_classes=2)
-    x = torch.randn(64, 3, 224, 224)  # Example input size for ResNet
-    y = model(x)
-    print(y.shape)  # Output shape should be (64, num_classes)
+    x = torch.randn(64, 3, 128, 128) 
+    model = ResNet50Model(num_classes=2) 
+    y = model(x) 
+    print(y.shape) 

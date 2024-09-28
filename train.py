@@ -11,6 +11,9 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import confusion_matrix
 from torch.optim.lr_scheduler import StepLR
 
+from PIL import Image
+import numpy as np  
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -94,25 +97,27 @@ def train(model, train_dataloader, val_dataloader, optim, loss_fn, num_epochs):
             f.write(f'Validation Loss: {running_loss_val / len(val_dataloader):.4f}\t')
             f.write(f'Validation Accuracy: {val_accuracy}\n')
 
-    #Plot accuracies
-    epochs = list(range(1, num_epochs+1))
+    # Plot accuracies
+    epochs = list(range(1, num_epochs + 1))
     plt.plot(epochs, accuracies_train, label='Train')
-    plt.plot(epochs, accuracies_val, label='Test')
+    plt.plot(epochs, accuracies_val, label='Validation')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
-    # Ticks for every second epoch
+    plt.ylim(0, 1) 
     plt.xticks(epochs[::2])
     plt.legend()
     plt.savefig(f'outputs/accuracies_{today}.png')
-    
     scheduler.step()
 
 
 
-def test(model, test_dataloader, loss_fn):
+def test(model, test_dataloader, loss_fn, device, save_dir):
     model.eval()
     all_labels = []
     all_preds = []
+
+        # Create the directory to save images if it does not exist
+    os.makedirs(save_dir, exist_ok=True)
 
     with torch.no_grad():
         running_loss_test = 0.0
@@ -132,10 +137,32 @@ def test(model, test_dataloader, loss_fn):
 
             total_samples += target.shape[0]
 
+            # Save the images with the predicted labels
+            for i in range(image.size(0)):  # Loop through the batch
+                img = image[i].cpu()  # Move image to CPU
+                label = pred.argmax(dim=1)[i].item()  # Get the predicted label
+                
+                # Convert the image tensor to numpy array for saving
+                img = img.permute(1, 2, 0).numpy()  # Change shape from (C, H, W) to (H, W, C)
+                img = (img - img.min()) / (img.max() - img.min())  # Normalize to [0, 1]
+
+                # Convert to uint8 format for saving
+                img = (img * 255).astype(np.uint8)
+
+                # Define label strings
+                predicted_label_str = 'hot_dog' if label == 0 else 'not_hot_dog'
+                actual_label_str = 'hot_dog' if target[i].item() == 0 else 'not_hot_dog'
+
+                # Create filename based on the predicted label
+                filename = f"{save_dir}/img_{total_samples + i}_{predicted_label_str}.png"
+
+                # Save image using PIL
+                pil_image = Image.fromarray(img)
+                pil_image.save(filename)
+
         test_accuracy = n_correct_classifications / total_samples
         test_loss = running_loss_test / total_samples
 
-        # print(f'[TEST] Loss: {test_loss:.3f}')
         print(f"[TEST] Accuracy: {test_accuracy:.3f}")
         
     with open(f'outputs/results_{today}.txt', 'a') as f:
@@ -144,6 +171,8 @@ def test(model, test_dataloader, loss_fn):
         f.write(f'Accuracy: {test_accuracy }\n')
 
     print(f'Finished evaluation, results saved to results_{today}.txt')
+        
+
 
 if __name__ == "__main__":
     from rich import print
@@ -225,6 +254,6 @@ if __name__ == "__main__":
                 loss_fn=loss_fn,
                 num_epochs=args.epochs,
             )
-        test(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn)
+        test(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn,device=device,save_dir='outputs/saved_images')
     except KeyboardInterrupt:
-        test(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn)
+        test(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn,device=device,save_dir='outputs/saved_images')
