@@ -4,6 +4,9 @@
 # Dataset files
 dataset/
 
+# Saved images
+saved_images/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -162,6 +165,10 @@ cython_debug/
 
 # Model outputs
 outputs/*
+
+# Model outputs
+TL_outputs/*
+
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

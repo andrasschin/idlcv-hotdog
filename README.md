@@ -12,6 +12,10 @@
 
 where the channels/kernels/strides describe the parameter for the given conv layer in the network
 
+## Run the train_TL.py script
+
+```python train_TL.py --epochs 20 --img-size 128```
+
 ## Data Loader 
 `HotdogDataset class` handles loading the images and applying the transformations when the dataset is accessed.
 
