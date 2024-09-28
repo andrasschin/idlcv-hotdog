@@ -69,7 +69,7 @@ if __name__ == '__main__':
     # Compute the SmoothGrad saliency map
     smoothgrad_saliency = compute_smoothgrad(model, input_tensor, output_max_index)
 
-    # Convert smoothgrad_saliency to PIL Images
+    # Convert smoothgrad_saliency to PIL Image
     smoothgrad_saliency = np.clip(smoothgrad_saliency * 255, 0, 255).astype(np.uint8)  # Scale to [0, 255]
     smoothgrad_saliency = np.transpose(smoothgrad_saliency, (1, 2, 0))  # Change shape to (224, 224, 3)
     smoothgrad_image = Image.fromarray(smoothgrad_saliency)  # Convert to PIL Image
