@@ -77,7 +77,7 @@ def get_dataset(subset, image_size, do_aug, data_path="dataset\\hotdog_nothotdog
 
     # Split the dataset if the subset is 'train'
     if subset == "train":
-        train_paths, val_paths = train_test_split(all_image_paths, test_size=0.2, random_state=42)
+        train_paths, val_paths = train_test_split(all_image_paths, test_size=0.3, random_state=42)
         train_dataset = HotdogDataset(subset='train', transform=train_transform, image_paths=train_paths, name_to_label=name_to_label)
         val_dataset = HotdogDataset(subset='validation', transform=val_transform, image_paths=val_paths, name_to_label=name_to_label)
         return train_dataset, val_dataset

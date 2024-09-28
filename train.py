@@ -179,17 +179,7 @@ if __name__ == "__main__":
         img_size=args.img_size,
         dropout_p=args.dropout
     ).to(device)
-    
-    
-    ############################ Parameters ############################
-    # resize = True
-    # rotate = True
-    # normalize = True
-    # advanced_augmentation = True
-    # do_aug = True
-    # apply_all_transforms = True
-    
-    
+       
     ############################ Dataset Creation ############################
     train_dataset, val_dataset  = get_dataset("train",  image_size=args.img_size, do_aug=True)
     test_dataset = get_dataset("test", image_size=args.img_size, do_aug=False)
