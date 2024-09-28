@@ -59,7 +59,7 @@ def get_dataset(subset, image_size, do_aug, data_path="dataset\\hotdog_nothotdog
         ])
     
     # Define a transform for the validation set (no augmentation)
-    val_transform = transforms.Compose([
+    base_transform = transforms.Compose([
         transforms.Resize((image_size, image_size)),
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
@@ -79,10 +79,10 @@ def get_dataset(subset, image_size, do_aug, data_path="dataset\\hotdog_nothotdog
     if subset == "train":
         train_paths, val_paths = train_test_split(all_image_paths, test_size=0.3, random_state=42)
         train_dataset = HotdogDataset(subset='train', transform=train_transform, image_paths=train_paths, name_to_label=name_to_label)
-        val_dataset = HotdogDataset(subset='validation', transform=val_transform, image_paths=val_paths, name_to_label=name_to_label)
+        val_dataset = HotdogDataset(subset='validation', transform=base_transform, image_paths=val_paths, name_to_label=name_to_label)
         return train_dataset, val_dataset
     else:
-        return HotdogDataset(subset=subset, transform=val_transform, image_paths=all_image_paths, name_to_label=name_to_label)
+        return HotdogDataset(subset=subset, transform=base_transform, image_paths=all_image_paths, name_to_label=name_to_label)
  
 
 if __name__ == "__main__":
